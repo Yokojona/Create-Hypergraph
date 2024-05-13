@@ -3,10 +3,6 @@
 //
 #include "Graph.h"
 
-Graph::Graph() {
-    inputGraph();
-}
-
 void Graph::inputGraph() {
     inputGraphSize();
     inputEdges();
@@ -31,10 +27,10 @@ void Graph::inputGraphSize() {
         std::cout << "invalid input" << std::endl;
         exit(1);
     }
-    if (n <= 1) {
+    /*if (n <= 1) {
         std::cout << n << " 0";
         exit(0);
-    }
+    }*/
     std::cout << "Number of edges:" << std::endl;
     std::cin >> s;
     m = strtol(s.c_str(), &endPtr, 10);
@@ -42,10 +38,10 @@ void Graph::inputGraphSize() {
         std::cout << "invalid input" << std::endl;
         exit(1);
     }
-    if (m <= 1) {
+    /*if (m <= 1) {
         std::cout << n << " 0";
         exit(0);
-    }
+    }*/
 }
 
 void Graph::inputEdges() {
@@ -81,9 +77,11 @@ void Graph::inputEdges() {
             }
         }
     }
-    int i = 0;
+    int i = 1;
     while (vertices.size() != n) {
-        vertices.insert(INT_MAX - i);
+        if (vertices.find(i) == vertices.end()) {
+            vertices.insert(i);
+        }
         i++;
     }
 }
@@ -112,4 +110,22 @@ void Graph::removeEdge(const int &u, const int &v) {
         edges.erase({u, v});
         map[u].remove(v);
     }
+}
+
+void Graph::transpose() {
+    Graph g = *this;
+    edges.clear();
+    map.clear();
+    for (auto e : g.edges) {
+        addEdge(e.second, e.first);
+    }
+    for (auto v : vertices) {
+        if (map.find(v) == map.end())
+            map[v] = {};
+    }
+}
+
+Graph Graph::getHyperGraph() {
+    Graph gT = *this;
+    gT.transpose();
 }

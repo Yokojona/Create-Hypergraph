@@ -16,7 +16,6 @@ struct hashFunc {
         return x.first ^ x.second;
     }
 };
-
 class Graph {
 private:
     int n = 0;
@@ -27,13 +26,14 @@ private:
     void inputGraphSize();
     void inputEdges();
 public:
-    Graph();
     void inputGraph();
     void makeEmptyGraph(const int& n);
     bool isAdjacent(const int &u, const int &v) const;
     std::list<int> getAdjList(const int &u) { return map[u]; }
     void addEdge(const int &u, const int &v);
     void removeEdge(const int& u, const int& v);
+    void transpose();
+    Graph getHyperGraph();
 };
 
 
