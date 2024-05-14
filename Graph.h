@@ -6,8 +6,9 @@
 #define CREATE_HYPERGRAPH_GRAPH_H
 
 #include <iostream>
-#include <list>
 #include <algorithm>
+#include <list>
+#include <stack>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -22,14 +23,15 @@ private:
     int m = 0;
     std::unordered_set<int> vertices;
     std::unordered_set<std::pair<int, int>, hashFunc> edges;
-    std::unordered_map<int,std::list<int>> map;
+    std::unordered_map<int,std::list<int>> adjacencyList;
     void inputGraphSize();
     void inputEdges();
+    void DFS(const int &startNode, std::unordered_map<int, bool>& visited, std::list<int>& finishOrder);
 public:
     void inputGraph();
-    void makeEmptyGraph(const int& n);
+    Graph makeEmptyGraph(const int& n);
     bool isAdjacent(const int &u, const int &v) const;
-    std::list<int> getAdjList(const int &u) { return map[u]; }
+    std::list<int> getAdjList(const int &u) { return adjacencyList[u]; }
     void addEdge(const int &u, const int &v);
     void removeEdge(const int& u, const int& v);
     void transpose();

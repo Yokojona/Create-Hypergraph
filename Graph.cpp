@@ -9,11 +9,11 @@ void Graph::inputGraph() {
     for (auto v : vertices) {
         for (auto e : edges) {
             if (e.first == v) {
-                map[v].push_front(e.second);
+                adjacencyList[v].push_front(e.second);
             }
         }
-        if (map.find(v) == map.end())
-            map[v] = {};
+        if (adjacencyList.find(v) == adjacencyList.end())
+            adjacencyList[v] = {};
     }
 }
 
@@ -47,18 +47,18 @@ void Graph::inputGraphSize() {
 void Graph::inputEdges() {
     char *endPtr;
     std::string s;
-    for (int i = 0; i < m; i++) {
+    for (auto i = 0; i < m; i++) {
         std::cout << "Edge #" << i + 1 << ":" << std::endl;
         std::cout << "Origin:" << std::endl;
         std::cin >> s;
-        int u = strtol(s.c_str(), &endPtr, 10);
+        auto u = strtol(s.c_str(), &endPtr, 10);
         if (*endPtr != '\0') {
             std::cout << "invalid input" << std::endl;
             exit(1);
         }
         std::cout << "Destination:" << std::endl;
         std::cin >> s;
-        int v = strtol(s.c_str(), &endPtr, 10);
+        auto v = strtol(s.c_str(), &endPtr, 10);
         if (*endPtr != '\0') {
             std::cout << "invalid input" << std::endl;
             exit(1);
@@ -77,7 +77,7 @@ void Graph::inputEdges() {
             }
         }
     }
-    int i = 1;
+    auto i = 1;
     while (vertices.size() != n) {
         if (vertices.find(i) == vertices.end()) {
             vertices.insert(i);
@@ -86,11 +86,13 @@ void Graph::inputEdges() {
     }
 }
 
-void Graph::makeEmptyGraph(const int& n) {
-    for (int i = 1; i <= n; i++) {
+Graph Graph::makeEmptyGraph(const int& n) {
+    Graph graph;
+    for (auto i = 1; i <= n; i++) {
         vertices.insert(i);
-        map[i] = {};
+        adjacencyList[i] = {};
     }
+    return graph;
 }
 
 bool Graph::isAdjacent(const int &u, const int &v) const {
@@ -100,7 +102,7 @@ bool Graph::isAdjacent(const int &u, const int &v) const {
 void Graph::addEdge(const int &u, const int &v) {
     if (!isAdjacent(u,v)) {
         edges.insert({u,v});
-        map[u].push_front(v);
+        adjacencyList[u].push_front(v);
     }
 }
 
@@ -108,24 +110,69 @@ void Graph::removeEdge(const int &u, const int &v) {
     if (isAdjacent(u,v)) {
         m--;
         edges.erase({u, v});
-        map[u].remove(v);
+        adjacencyList[u].remove(v);
     }
 }
 
 void Graph::transpose() {
     Graph g = *this;
     edges.clear();
-    map.clear();
+    adjacencyList.clear();
     for (auto e : g.edges) {
         addEdge(e.second, e.first);
     }
     for (auto v : vertices) {
-        if (map.find(v) == map.end())
-            map[v] = {};
+        if (adjacencyList.find(v) == adjacencyList.end())
+            adjacencyList[v] = {};
     }
 }
 
 Graph Graph::getHyperGraph() {
-    Graph gT = *this;
+    auto gT = *this;
     gT.transpose();
+    std::unordered_map<int,bool> visited;
+    for (const auto& v : adjacencyList) {
+        visited[v.first] = false;
+    }
+    std::list<int> finishOrder;
+    while (finishOrder.size() < n) {
+        auto itr = std::find_if(visited.begin(),
+                                visited.end(),[](std::pair<int,bool> v) {return !v.second;});
+        DFS(itr->first, visited, finishOrder);
+    }
+    finishOrder.reverse();
+    for (const auto& v : adjacencyList) {
+        visited[v.first] = false;
+    }
+    std::unordered_map<int, std::list<int>> stronglyConnectedComponents;
+    auto size = 0;
+    for (auto v : finishOrder) {
+        if (!visited[v]) {
+            gT.DFS(v, visited, stronglyConnectedComponents[size++]);
+        }
+    }
+    Graph hyperGraph = makeEmptyGraph(size);
+    return hyperGraph;
+}
+
+void Graph::DFS(const int &startNode, std::unordered_map<int, bool>& visited, std::list<int>& finishOrder) {
+    std::stack<int> stack;
+    stack.push(startNode);
+    while (!stack.empty()) {
+        int curr = stack.top();
+        visited[curr] = true;
+        auto finished = true;
+        std::list<int> neighbours = getAdjList(curr);
+        for (auto neighbour : neighbours) {
+            if (!visited[neighbour]) {
+                stack.push(neighbour);
+                finished = false;
+                break;
+            }
+        }
+        if (finished) {
+            finishOrder.push_back(curr);
+            stack.pop();
+        }
+    }
 }
