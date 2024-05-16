@@ -49,14 +49,12 @@ void Graph::inputEdges() {
     std::string s;
     for (auto i = 0; i < m; i++) {
         std::cout << "Edge #" << i + 1 << ":" << std::endl;
-        std::cout << "Origin:" << std::endl;
         std::cin >> s;
         auto u = strtol(s.c_str(), &endPtr, 10);
         if (*endPtr != '\0') {
             std::cout << "invalid input" << std::endl;
             exit(1);
         }
-        std::cout << "Destination:" << std::endl;
         std::cin >> s;
         auto v = strtol(s.c_str(), &endPtr, 10);
         if (*endPtr != '\0') {
