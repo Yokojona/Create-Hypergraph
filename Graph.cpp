@@ -86,21 +86,13 @@ void Graph::inputEdges() {
     }
 }
 
-Graph Graph::makeEmptyGraph(const int& n) {
-    Graph graph;
-    for (auto i = 1; i <= n; i++) {
-        vertices.insert(i);
-        adjacencyList[i] = {};
-    }
-    return graph;
-}
-
 bool Graph::isAdjacent(const int &u, const int &v) const {
     return edges.find({u,v}) != edges.end();
 }
 
 void Graph::addEdge(const int &u, const int &v) {
-    if (!isAdjacent(u,v)) {
+    if (u != v && !isAdjacent(u,v)) {
+        m++;
         edges.insert({u,v});
         adjacencyList[u].push_front(v);
     }
@@ -151,7 +143,23 @@ Graph Graph::getHyperGraph() {
             gT.DFS(v, visited, stronglyConnectedComponents[size++]);
         }
     }
-    Graph hyperGraph = makeEmptyGraph(size);
+    Graph hyperGraph(size);
+    for (const auto& component1 : stronglyConnectedComponents) {
+        for (const auto& component2 : stronglyConnectedComponents) {
+            if (component1 != component2) {
+                for (const auto& v1 : component1.second) {
+                    for (const auto& v2 : component2.second) {
+                        if (isAdjacent(v1,v2)) {
+                            hyperGraph.addEdge(component1.first, component2.first);
+                        }
+                        if (isAdjacent(v2,v1)) {
+                            hyperGraph.addEdge(component2.first, component1.first);
+                        }
+                    }
+                }
+            }
+        }
+    }
     return hyperGraph;
 }
 
@@ -175,4 +183,15 @@ void Graph::DFS(const int &startNode, std::unordered_map<int, bool>& visited, st
             stack.pop();
         }
     }
+}
+
+Graph::Graph(const int& n) : n(n) {
+    for (auto i = 0; i < n; i++) {
+        vertices.insert(i);
+        adjacencyList[i] = {};
+    }
+}
+
+void Graph::printSize() const {
+    std::cout << n << " " << m;
 }

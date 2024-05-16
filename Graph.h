@@ -28,14 +28,17 @@ private:
     void inputEdges();
     void DFS(const int &startNode, std::unordered_map<int, bool>& visited, std::list<int>& finishOrder);
 public:
+    Graph() = default;
+    explicit Graph(const int& n);
     void inputGraph();
-    Graph makeEmptyGraph(const int& n);
     bool isAdjacent(const int &u, const int &v) const;
     std::list<int> getAdjList(const int &u) { return adjacencyList[u]; }
     void addEdge(const int &u, const int &v);
     void removeEdge(const int& u, const int& v);
     void transpose();
     Graph getHyperGraph();
+
+    void printSize() const;
 };
 
 
